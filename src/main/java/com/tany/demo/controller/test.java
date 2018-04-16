@@ -1,5 +1,6 @@
 package com.tany.demo.controller;
 
+import com.tany.demo.asynctask.AsyncTaskService;
 import com.tany.demo.entity.TestEntity;
 import com.tany.demo.listener.TestEvent;
 import com.tany.demo.service.TestService;
@@ -18,6 +19,9 @@ public class test {
     @Autowired
     private ApplicationContext applicationContext;
 
+    @Autowired
+    private AsyncTaskService asyncTaskService;
+
     @RequestMapping(path = "/test", method = RequestMethod.GET)
     public String list(){
         //查询列表数据
@@ -31,4 +35,9 @@ public class test {
         return "event:"+1;
     }
 
+    @RequestMapping(path = "/async", method = RequestMethod.GET)
+    public String async(){
+        asyncTaskService.dataTranslate();
+        return "asyncTask:"+1;
+    }
 }
