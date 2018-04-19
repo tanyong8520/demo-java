@@ -4,6 +4,7 @@ import com.tany.demo.Utils.ResultModel;
 import com.tany.demo.asynctask.AsyncTaskService;
 import com.tany.demo.entity.TestEntity;
 import com.tany.demo.listener.TestEvent;
+import com.tany.demo.redis.RedisService;
 import com.tany.demo.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,8 +35,17 @@ public class test {
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
+    @Autowired
+    private RedisService redisService;
+
     @Value("${kafka.data.topic.engine}")
     private String topic;
+
+    @RequestMapping(path = "/redis", method = RequestMethod.GET)
+    public ResultModel redis(HttpServletRequest httpRequest){
+        redisService.set("tany","test");
+        return ResultModel.success();
+    }
 
     @RequestMapping(path = "/test", method = RequestMethod.GET)
     public String list(){
