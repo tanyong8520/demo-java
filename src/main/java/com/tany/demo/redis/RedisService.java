@@ -7,6 +7,7 @@ public interface RedisService {
     String CACHE_KEY_PREFIX_BASE = "tany:";
     String CACHE_KEY_PREFIX_NEW_MSG = CACHE_KEY_PREFIX_BASE + "hasMsg:";
     String CACHE_KEY_PREFIX_USED_TIMES = "usedTimes:";
+    String CACHE_KEY_PREFIX_USER_ID = "userId:";
 
     /**
      * 是否有新消息
@@ -99,4 +100,36 @@ public interface RedisService {
      * @param keys
      */
     void deleteBatch(Collection<String> keys);
+
+
+    /**
+     * set添加新元素
+     *
+     * @param alertId
+     * @param userId 需要在set中添加新的用户
+     */
+    void addSetValue(long alertId, long userId);
+
+    /**
+     * set查看元素
+     *
+     * @param alertId
+     * @param userId 查看set中知否有该用户
+     */
+    Boolean getSetValue(long alertId, long userId);
+
+    /**
+     * set删除元素
+     *
+     * @param alertId
+     * @param userId 查看set中知否有该用户
+     */
+    void removeSetValue(long alertId, long userId);
+
+    /**
+     * set删除元素
+     *
+     * @param alertId
+     */
+    void removeSetAllValue(long alertId);
 }
