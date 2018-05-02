@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class KafkaConsumerListener {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @KafkaListener(topics = "${kafka.data.topic.engine}")
+//    @KafkaListener(topics = "${kafka.data.topic.engine}")
     public void engineListen(ConsumerRecord<?, ?> record) {
         logger.info("获取kafka测试数据,key: {},value:{}" ,record.key(),record.value());
     }

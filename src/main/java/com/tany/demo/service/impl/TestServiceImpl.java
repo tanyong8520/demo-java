@@ -1,5 +1,6 @@
 package com.tany.demo.service.impl;
 
+import com.tany.demo.entity.TestAndSumEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,13 @@ import com.tany.demo.service.TestService;
 public class TestServiceImpl implements TestService {
 	@Autowired
 	private TestMapper testMapper;
-	
+
+	@Override
+	public TestAndSumEntity quary1v2(Map<String, Object> map) {
+
+		return testMapper.queryTestAndSum(map);
+	}
+
 	@Override
 	public TestEntity queryObject(Long id){
 		return testMapper.queryObject(id);

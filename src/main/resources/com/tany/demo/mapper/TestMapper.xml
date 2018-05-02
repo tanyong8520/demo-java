@@ -20,6 +20,43 @@
 		<result property="desc" column="desc"/>
 	</resultMap>
 
+	<resultMap type="com.tany.demo.entity.TestAndSumEntity" id="testAndSum">
+		<result property="id" column="id"/>
+		<result property="alertId" column="alert_id"/>
+		<result property="createTime" column="create_time"/>
+		<result property="data" column="data"/>
+		<result property="desc" column="desc"/>
+		<collection property="sumTableList" ofType="com.tany.demo.entity.sumTableEntity" column="alertId">
+			<id property="id" column="s_id"/>
+			<result property="alertId" column="s_parent_id"/>
+			<result property="createTime" column="s_create_time"/>
+			<result property="data" column="s_data"/>
+			<result property="desc" column="s_desc"/>
+		</collection>
+	</resultMap>
+
+	<select id="queryTestAndSum" resultMap="testAndSum">
+		SELECT
+		t_test.id, t_test.alert_id, t_test.create_time, t_test.`data` ,t_test.`desc`,
+		t_sum_table.id as s_id, t_sum_table.parent_id s_parent_id, t_sum_table.create_time as s_create_time, t_sum_table.`data` as s_data ,t_sum_table.`desc` as s_desc
+		from t_test LEFT JOIN t_sum_table on t_test.alert_id = t_sum_table.parent_id
+		where t_test.alert_id = #{alertId}
+		<if test="startTime != null and startTime.trim() !='' and endTime != null and endTime.trim() != ''">
+			and t_test.create_time BETWEEN  #{startTime} and #{endTime}
+		</if>
+		<choose>
+			<when test="sidx != null and sidx.trim() != ''">
+				order by ${sidx} ${order}
+			</when>
+			<otherwise>
+				order by t_test.create_time desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
 	<select id="queryObject" resultType="com.tany.demo.entity.TestEntity">
 		select <include refid="TestColumns"/> from t_test where id = #{value}
 	</select>

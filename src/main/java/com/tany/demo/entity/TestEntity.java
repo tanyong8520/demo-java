@@ -2,6 +2,7 @@ package com.tany.demo.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 
@@ -14,7 +15,7 @@ public class TestEntity implements Serializable {
 	
 	//主键
 	private Long id;
-	//预警ID
+	//业务ID
 	private Long alertId;
 	//创建时间
 	private Date createTime;
@@ -36,13 +37,13 @@ public class TestEntity implements Serializable {
 		return id;
 	}
 	/**
-	 * 设置：预警ID
+	 * 设置：业务ID
 	 */
 	public void setAlertId(Long alertId) {
 		this.alertId = alertId;
 	}
 	/**
-	 * 获取：预警ID
+	 * 获取：业务ID
 	 */
 	public Long getAlertId() {
 		return alertId;

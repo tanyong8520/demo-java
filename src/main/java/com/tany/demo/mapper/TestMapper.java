@@ -2,6 +2,8 @@ package com.tany.demo.mapper;
 
 import java.util.List;
 import java.util.Map;
+
+import com.tany.demo.entity.TestAndSumEntity;
 import com.tany.demo.entity.TestEntity;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -13,6 +15,8 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface TestMapper {
+
+    TestAndSumEntity queryTestAndSum(Map<String, Object> map);
 
     TestEntity queryObject(Object id);
 

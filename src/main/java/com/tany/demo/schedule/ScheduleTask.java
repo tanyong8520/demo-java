@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ScheduleTask {
 
-    @Scheduled(cron = "0 0/1 * * * ?")
+    @Scheduled(cron = "0 0/60 * * * ?")
     public void refreshCodeCache() {
         System.out.println("定时任务触发");
     }
