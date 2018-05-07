@@ -1,18 +1,29 @@
 package com.tany.demo.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.tany.demo.Utils.ResultModel;
 import com.tany.demo.asynctask.AsyncTaskService;
+import com.tany.demo.controller.vo.UserInfoEnter;
 import com.tany.demo.entity.TestAndSumEntity;
 import com.tany.demo.entity.TestEntity;
 import com.tany.demo.listener.TestEvent;
 import com.tany.demo.redis.RedisService;
 import com.tany.demo.service.TestService;
+import com.tany.demo.service.UserInfoService;
+import com.tany.demo.service.model.UserInfo;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.IncorrectCredentialsException;
+import org.apache.shiro.authc.LockedAccountException;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,8 +50,67 @@ public class test {
     @Autowired
     private RedisService redisService;
 
+    @Autowired
+    private UserInfoService userInfoService;
+
     @Value("${kafka.data.topic.engine}")
     private String topic;
+
+    @RequestMapping(value = "/userInfo")
+    public String getUserInfo(HttpServletRequest httpRequest){
+        UserInfo userInfo = userInfoService.findByUsername("test");
+        return "get user info:"+userInfo.toString();
+    }
+
+    /**
+     * 未登录，shiro应重定向到登录界面，此处返回未登录状态信息由前端控制跳转页面
+     * @return
+     */
+    @RequestMapping(value = "/unauth")
+    @ResponseBody
+    public Object unauth() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("code", "1000000");
+        map.put("msg", "未登录");
+        return map;
+    }
+
+    /**
+     * 登录方法
+     * @param userInfoEnter
+     * @return
+     */
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    @ResponseBody
+    public String ajaxLogin(UserInfoEnter userInfoEnter) {
+        JSONObject jsonObject = new JSONObject();
+        Subject subject = SecurityUtils.getSubject();
+        UsernamePasswordToken token = new UsernamePasswordToken(userInfoEnter.getUsername(), userInfoEnter.getPassword());
+        try {
+            subject.login(token);
+            jsonObject.put("token", subject.getSession().getId());
+            jsonObject.put("msg", "登录成功");
+        } catch (IncorrectCredentialsException e) {
+            jsonObject.put("msg", "密码错误");
+        } catch (LockedAccountException e) {
+            jsonObject.put("msg", "登录失败，该用户已被冻结");
+        } catch (AuthenticationException e) {
+            jsonObject.put("msg", "该用户不存在");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return jsonObject.toString();
+    }
+
+    @RequestMapping(path = "/index", method = RequestMethod.GET)
+    public String index(HttpServletRequest httpRequest){
+        return "index page";
+    }
+
+    @RequestMapping(path = "/403", method = RequestMethod.GET)
+    public String unauthorized(HttpServletRequest httpRequest){
+        return "403 page";
+    }
 
     @RequestMapping(path = "/1v2", method = RequestMethod.GET)
     public ResultModel get1v2(HttpServletRequest httpRequest){

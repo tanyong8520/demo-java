@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false" scan="false" scanPeriod="30 seconds">
+
+    <property name="server.name" value="report-server" />
+    <property name="log.level" value="INFO" />
+    <property name="file.level" value="INFO" />
+    <property name="stdout.level" value="INFO" />
+    <property name="access.level" value="INFO" />
+    <property name="logPattern" value="%date %level [%thread] %logger{10} [%file:%line] - %msg%n" />
+    <property name="maxSize" value="100MB" />
+    <property name="logFolder" value="logs" />
+    <property name="accesslogFolder" value="logs" />
+    <property name="encoding" value="UTF-8" />
+    <property name="queueSize" value="1024" />
+    <property file="./logback.properties" />
+
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${logPattern}</pattern>
+            <charset>${encoding}</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>${stdout.level}</level>
+        </filter>
+    </appender>
+
+    <appender name="file-appdender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>${logPattern}</pattern>
+            <charset>${encoding}</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${logFolder}/${server.name}_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>${maxSize}</maxFileSize>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>${file.level}</level>
+        </filter>
+    </appender>
+
+    <!-- 异步输出 -->
+    <appender name ="ASYNC-FILE" class= "ch.qos.logback.classic.AsyncAppender">
+        <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+        <discardingThreshold >0</discardingThreshold>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>${queueSize}</queueSize>
+        <!-- 添加附加的appender,最多只能添加一个 -->
+        <appender-ref ref ="file-appdender"/>
+    </appender>
+
+    <appender name="access-appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>${logPattern}</pattern>
+            <charset>${encoding}</charset>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${accesslogFolder}/access_${server.name}_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>${maxSize}</maxFileSize>
+        </rollingPolicy>
+    </appender>
+
+    <logger name="access-logger" level="${access.level}" additivity="true">
+        <appender-ref ref="access-appender" />
+    </logger>
+
+    <!-- rootLoggerLevel尽量保持info level, 类似于spring会产生大量的debug文件容易占用过多磁盘 -->
+    <root level="${log.level}">
+        <appender-ref ref="ASYNC-FILE" />
+        <appender-ref ref="stdout" />
+    </root>
+</configuration>
