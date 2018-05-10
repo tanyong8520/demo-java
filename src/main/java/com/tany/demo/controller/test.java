@@ -7,6 +7,7 @@ import com.tany.demo.controller.vo.UserInfoEnter;
 import com.tany.demo.entity.TestAndSumEntity;
 import com.tany.demo.entity.TestEntity;
 import com.tany.demo.listener.TestEvent;
+import com.tany.demo.optLog.OptLog;
 import com.tany.demo.redis.RedisService;
 import com.tany.demo.service.TestService;
 import com.tany.demo.service.UserInfoService;
@@ -16,6 +17,8 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.LockedAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,6 +83,7 @@ public class test {
      * @param userInfoEnter
      * @return
      */
+    @OptLog
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
     public String ajaxLogin(UserInfoEnter userInfoEnter) {
@@ -113,6 +117,7 @@ public class test {
     }
 
     @RequestMapping(path = "/1v2", method = RequestMethod.GET)
+    @RequiresRoles(value={"admin","test"},logical = Logical.OR)
     public ResultModel get1v2(HttpServletRequest httpRequest){
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("alertId",1L);
