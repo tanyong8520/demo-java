@@ -241,7 +241,7 @@ public class HttpClient {
     public static void main(String[] args) {
         Map<String, String> param = new HashMap<>();
         param.put("wd", "tany");
-        HttpResponseModel responseModel = sendPost("http://www.baidu.com/s", param, null);
+        HttpResponseModel responseModel = sendGet("http://www.baidu.com", param, null);
         System.out.println(responseModel);
     }
 }
