@@ -1,8 +1,9 @@
 package com.tany.demo.service.model;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class SysRole {
+public class SysRole implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long rid;
