@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tany.demo.mapper.PermissionInfoMapper">
+
+    <resultMap type="com.tany.demo.service.model.SysPermission" id="permissionInfo">
+        <result property="pid" column="pid"/>
+        <result property="roleId" column="roleId"/>
+        <result property="available" column="available"/>
+        <result property="name" column="name"/>
+        <result property="url" column="url"/>
+    </resultMap>
+
+
+    <select id="queryPermissionByRole" resultMap="permissionInfo">
+        select pid, roleId, available, `name`, url
+        from t_permission_info
+        WHERE
+        `roleId` = #{roleId}
+    </select>
+</mapper>

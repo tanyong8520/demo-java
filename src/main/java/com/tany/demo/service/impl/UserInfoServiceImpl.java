@@ -18,6 +18,6 @@ public class UserInfoServiceImpl implements UserInfoService {
     public UserInfo findByUsername(String userName) {
         Map<String, Object> map = new HashMap<>();
         map.put("name",userName);
-        return  userInfoMapper.queryObjectByName(map);
+        return  userInfoMapper.queryUserByName(map);
     }
 }

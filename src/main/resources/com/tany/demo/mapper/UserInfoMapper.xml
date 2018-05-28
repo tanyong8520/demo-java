@@ -10,28 +10,45 @@
         <result property="salt" column="salt"/>
         <result property="state" column="state"/>
         <result property="username" column="username"/>
-        <collection property="sysRoleList" ofType="com.tany.demo.service.model.SysRole" column="roleId">
-            <id property="rid" column="rid"/>
-            <result property="available" column="ravailable"/>
-            <result property="description" column="description"/>
-            <result property="role" column="role"/>
-            <collection property="sysPermissionList" ofType="com.tany.demo.service.model.SysPermission" column="rid">
-                <id property="pid" column="pid"/>
-                <result property="available" column="pavailable"/>
-                <result property="name" column="name"/>
-                <result property="url" column="url"/>
-            </collection>
-        </collection>
+        <result property="roleId" column="roleId"/>
     </resultMap>
 
-    <select id="queryObjectByName" resultMap="userInfo">
-        select u.uid as uid, u.`name` as `name`, u.`password` as `password`, u.salt as salt, u.state as state ,u.username as username,
-        r.rid as rid ,r.available as ravailable , r.description as description, r.role as role,
-        p.pid as pid , p.available as pavailable, p.`name` as pname, p.url as url
-        from t_user_info u
-        LEFT JOIN t_role_info  r ON u.roleId = r.rid
-        LEFT JOIN t_permission_info p ON r.rid = p.roleId
+    <!--<resultMap type="com.tany.demo.service.model.UserAndRole" id="userAndRoleInfo">-->
+        <!--<result property="uid" column="uid"/>-->
+        <!--<result property="name" column="name"/>-->
+        <!--<result property="password" column="password"/>-->
+        <!--<result property="salt" column="salt"/>-->
+        <!--<result property="state" column="state"/>-->
+        <!--<result property="username" column="username"/>-->
+        <!--<collection property="sysRoleList" ofType="com.tany.demo.service.model.SysRole" column="roleId">-->
+            <!--<id property="rid" column="rid"/>-->
+            <!--<result property="available" column="ravailable"/>-->
+            <!--<result property="description" column="description"/>-->
+            <!--<result property="role" column="role"/>-->
+            <!--<collection property="sysPermissionList" ofType="com.tany.demo.service.model.SysPermission" column="rid">-->
+                <!--<id property="pid" column="pid"/>-->
+                <!--<result property="available" column="pavailable"/>-->
+                <!--<result property="name" column="name"/>-->
+                <!--<result property="url" column="url"/>-->
+            <!--</collection>-->
+        <!--</collection>-->
+    <!--</resultMap>-->
+
+    <!--<select id="queryObjectByName" resultMap="userAndRoleInfo">-->
+        <!--select u.uid as uid, u.`name` as `name`, u.`password` as `password`, u.salt as salt, u.state as state ,u.username as username,-->
+        <!--r.rid as rid ,r.available as ravailable , r.description as description, r.role as role,-->
+        <!--p.pid as pid , p.available as pavailable, p.`name` as pname, p.url as url-->
+        <!--from t_user_info u-->
+        <!--LEFT JOIN t_role_info  r ON u.roleId = r.rid-->
+        <!--LEFT JOIN t_permission_info p ON r.rid = p.roleId-->
+        <!--WHERE-->
+        <!--u.`name` = #{name}-->
+    <!--</select>-->
+
+    <select id="queryUserByName" resultMap="userInfo">
+        select uid,`name`, `password`, salt,state ,username, roleId
+        from t_user_info
         WHERE
-        u.`name` = #{name}
+        `name` = #{name}
     </select>
 </mapper>

@@ -168,4 +168,9 @@ public class test {
             return ResultModel.operationError();
         }
     }
+
+    @RequestMapping(value = "/kickout", method = RequestMethod.GET)
+    public String kickOut() {
+        return "kickout";
+    }
 }

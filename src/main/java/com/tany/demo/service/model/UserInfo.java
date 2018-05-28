@@ -1,10 +1,8 @@
 package com.tany.demo.service.model;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class UserInfo implements Serializable {
-    private static final long serialVersionUID = 1L;
 
     private Long uid;
     private String name;
@@ -12,8 +10,7 @@ public class UserInfo implements Serializable {
     private String salt;
     private Integer state;
     private String username;
-
-    private List<SysRole> sysRoleList;
+    private Long roleId;
 
 
     public Long getUid() {
@@ -64,12 +61,12 @@ public class UserInfo implements Serializable {
         this.username = username;
     }
 
-    public List<SysRole> getSysRoleList() {
-        return sysRoleList;
+    public Long getRoleId() {
+        return roleId;
     }
 
-    public void setSysRoleList(List<SysRole> sysRoleList) {
-        this.sysRoleList = sysRoleList;
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
     }
 
     @Override
@@ -82,14 +79,5 @@ public class UserInfo implements Serializable {
                 ", state=" + state +
                 ", username=" + username +
                 "}";
-    }
-
-    /**
-     * 密码盐.
-     *
-     * @return
-     */
-    public String getCredentialsSalt() {
-        return this.username + this.salt;
     }
 }

@@ -6,6 +6,7 @@ public class SysPermission implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long pid;
+    private Long roleId;
     private Integer available;
     private String name;
     private String url;
@@ -17,6 +18,14 @@ public class SysPermission implements Serializable {
 
     public void setId(Long pid) {
         this.pid = pid;
+    }
+
+    public Long getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
     }
 
     public Integer getAvailable() {

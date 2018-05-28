@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tany.demo.mapper.RoleInfoMapper">
+
+    <resultMap type="com.tany.demo.service.model.SysRole" id="roleInfo">
+        <result property="rid" column="rid"/>
+        <result property="available" column="available"/>
+        <result property="description" column="description"/>
+        <result property="role" column="role"/>
+    </resultMap>
+
+
+    <select id="queryRoleByRole" resultMap="roleInfo">
+        select rid , available, description, role
+          from t_role_info
+        WHERE
+          `rid` = #{roleId}
+    </select>
+</mapper>

@@ -49,7 +49,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/logout", "logout");
         // 配置不会被拦截的链接 顺序判断
         filterChainDefinitionMap.put("/static/**", "anon");
-        filterChainDefinitionMap.put("/tany/login", "anon");
+        filterChainDefinitionMap.put("/tany/*", "anon");
         filterChainDefinitionMap.put("/**", "authc");
         //配置shiro默认登录界面地址，前后端分离中登录界面跳转应由前端路由控制，后台仅返回json数据
         shiroFilterFactoryBean.setLoginUrl("/tany/login");
@@ -116,6 +116,7 @@ public class ShiroConfig {
         redisManager.setHost(host);
         redisManager.setPort(port);
         redisManager.setTimeout(timeout);
+        redisManager.setExpire(1800);
 
 //        redisManager.setPassword(password);
 
@@ -166,7 +167,7 @@ public class ShiroConfig {
         kickoutSessionControlFilter.setSessionManager(sessionManager());
         kickoutSessionControlFilter.setKickoutAfter(false);
         kickoutSessionControlFilter.setMaxSession(1);
-        kickoutSessionControlFilter.setKickoutUrl("/auth/kickout");
+        kickoutSessionControlFilter.setKickoutUrl("/tany/kickout");
         return kickoutSessionControlFilter;
     }
 
