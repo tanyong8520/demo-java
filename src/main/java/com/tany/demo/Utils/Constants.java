@@ -9,4 +9,8 @@ public class Constants {
      * phoenix配置文件名称
      */
     public static final String PHOENIX_CONFIG_FILE = "phoenix.properties";
+    /**
+     * redis配置文件名称
+     */
+    public static final String REDIS_CONFIG_FILE = "redis.properties";
 }
