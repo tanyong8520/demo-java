@@ -8,6 +8,8 @@ public enum ExecuteEnum {
     ERROR_UNKNOWN(1000, "unknown error"),
 
     ERROR_HBASE_EXECUTE(5300, "hbase execute error"),
+
+    ERROR_ZOOKEEPER_EXECUTE(5400, "zookeeper error"),
     ;
 
     private int code;

@@ -4,16 +4,11 @@ import com.tany.demo.Hbase.HbaseDataType;
 import com.tany.demo.Hbase.PhoenixDAO;
 import com.tany.demo.Utils.ConfigLoader;
 import com.tany.demo.Utils.Constants;
-import org.apache.commons.collections.MapUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
 
