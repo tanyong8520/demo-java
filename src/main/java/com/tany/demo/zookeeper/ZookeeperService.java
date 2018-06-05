@@ -41,21 +41,23 @@ public class ZookeeperService implements Watcher{
 
     public ZookeeperService(){
         try {
-            zoo = new ZooKeeper(CONNECT_ADDR, SESSION_OUTTIME, new Watcher() {
-                @Override
-                public void process(WatchedEvent event) {
-                    //获取事件状态
-                    KeeperState state = event.getState();
-                    EventType eventType = event.getType();
-                    if(KeeperState.SyncConnected == state){
-                        if(EventType.None == eventType ){ // 刚链接时，没有任何节点
-                            //如果连接成功，则发送信号量，让后续阻塞程序向下执行
-                            System.out.println("客户端连接服务器成功。。。。");
-                            countDown.countDown();
-                        }
-                    }
-                }
-            });
+            zoo = new ZooKeeper(CONNECT_ADDR, SESSION_OUTTIME, this
+//                    new Watcher() {
+//                @Override
+//                public void process(WatchedEvent event) {
+//                    //获取事件状态
+//                    KeeperState state = event.getState();
+//                    EventType eventType = event.getType();
+//                    if(KeeperState.SyncConnected == state){
+//                        if(EventType.None == eventType ){ // 刚链接时，没有任何节点
+//                            //如果连接成功，则发送信号量，让后续阻塞程序向下执行
+//                            System.out.println("客户端连接服务器成功。。。。");
+//                            countDown.countDown();
+//                        }
+//                    }
+//                }
+//            }
+            );
             //阻塞程序，等待客户端连接成功
             countDown.await();
         } catch (IOException e) {

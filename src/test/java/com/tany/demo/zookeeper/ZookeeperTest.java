@@ -47,14 +47,21 @@ public class ZookeeperTest {
     public void watchTest(){
         ZookeeperService zooBase = new ZookeeperService();
         try {
-//            zooBase.createRootNode("/hello", "hello world");
+            System.out.println("创建跟节点");
+            zooBase.createRootNode("/hello", "hello world");
             List<String> list = new ArrayList<String>();
-//            zooBase.getChildrenNode("/hello",true, list);
-//            zooBase.delayMillis(1*1000);
-//            zooBase.isExistNode("/hello/test1", true);
-//            zooBase.delayMillis(1*1000);
-//            zooBase.createChilrenNode("/hello/test1", "hello test1 b",false);
+            System.out.println("跟节点创建geichildnode监听");
+            zooBase.getChildrenNode("/hello",true, list);
+            zooBase.delayMillis(1*1000);
+            System.out.println("跟节点创建isExist监听");
+            zooBase.isExistNode("/hello/test1", true);
+            zooBase.delayMillis(1*1000);
+            System.out.println("创建子节点");
+            zooBase.createChilrenNode("/hello/test1", "hello test1 b",false);
+            System.out.println("创建子getnodedata监听");
             zooBase.getNodeData("/hello/test1",true);
+            System.out.println("子节点保存更新数据");
+            zooBase.setNodeData("/hello/test1", "hello test1 c");
             zooBase.delayMillis(1*1000);
 //            zooBase.setNodeData("/hello/test1","hello test1 c");
         } catch (KeeperException e) {
