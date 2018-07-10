@@ -176,7 +176,11 @@
 			<artifactId>transport</artifactId>
 			<version>6.2.4</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.elasticsearch.plugin</groupId>
+			<artifactId>transport-netty4-client</artifactId>
+			<version>6.2.4</version>
+		</dependency>
 	</dependencies>
 
 	<build>
