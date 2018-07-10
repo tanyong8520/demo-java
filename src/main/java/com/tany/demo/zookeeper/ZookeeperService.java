@@ -447,9 +447,9 @@ public class ZookeeperService implements Watcher{
      * 休眠多少毫秒
      * @param millisecond
      */
-    public void delayMillis(int millis){
+    public void delayMillis(int millisecond){
         try {
-            Thread.sleep(millis);
+            Thread.sleep(millisecond);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
