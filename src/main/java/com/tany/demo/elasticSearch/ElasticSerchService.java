@@ -8,6 +8,7 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
@@ -27,15 +28,23 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 
 public class ElasticSerchService {
     private TransportClient client;
-    private final String clusterName="backgroup_services_ES";
+    private final String clusterName="my-application";
     private final String transportAddress="192.168.0.108";//填写正确的es服务器ip地址
     private final String transportPort="9300";//默认为9300
-    private final String indexName="index1";//索引名称
+    private String indexName;//索引名称
+    private String typeName;//type名称
+
+
+    public ElasticSerchService(String indexName, String typeName){
+        this.indexName = indexName;
+        this.typeName = typeName;
+    }
 
     public void getESClient(){
 
@@ -66,31 +75,30 @@ public class ElasticSerchService {
      * 存入索引中
      * @throws Exception
      */
-    public void saveInfoToIndex() throws Exception {
-        XContentBuilder source = XContentFactory.jsonBuilder()
-                .startObject()
-                .field("user", "kimchy")
-                .field("postDate", new Date())
-                .field("message", "trying to out ElasticSearch")
-                .endObject();
-
-
-        // 存json入索引中
-        IndexResponse response = client.prepareIndex("twitter", "tweet", "1").setSource(source).get();
-//        // 结果获取
-        String index = response.getIndex();
-        String type = response.getType();
-        String id = response.getId();
-        long version = response.getVersion();
-        boolean created = response.isFragment();
-        System.out.println(index + " : " + type + ": " + id + ": " + version + ": " + created);
+    public void saveInfoToIndex(Map<String, String > data) throws Exception {
+        for(Map.Entry dataItem : data.entrySet()){
+            XContentBuilder source = XContentFactory.jsonBuilder()
+                    .startObject()
+                    .field("user", "kimchy2")
+                    .field("postDate", new Date())
+                    .field("message", "trying to out ElasticSearch2")
+                    .endObject();
+            // 存json入索引中
+            IndexResponse response = client.prepareIndex(indexName, typeName, "1").setSource(source).get();
+//            String index = response.getIndex();
+//            String type = response.getType();
+//            String id = response.getId();
+//            long version = response.getVersion();
+//            boolean created = response.isFragment();
+//            System.out.println(index + " : " + type + ": " + id + ": " + version + ": " + created);
+        }
     }
 
     /**
      * get API 获取指定文档信息
      */
     public void getTypeInfo() {
-        GetResponse response = client.prepareGet("twitter", "tweet", "1").get();
+        GetResponse response = client.prepareGet(indexName, typeName, "1").get();
         System.out.println(response.getSourceAsString());
     }
 
@@ -98,7 +106,7 @@ public class ElasticSerchService {
      * 测试 delete api
      */
     public void deleteType() {
-        DeleteResponse response = client.prepareDelete("twitter", "tweet", "1")
+        DeleteResponse response = client.prepareDelete(indexName, typeName, "4")
                 .get();
         String index = response.getIndex();
         String type = response.getType();
@@ -114,8 +122,9 @@ public class ElasticSerchService {
      */
     public void updateDocInfo() throws Exception {
         UpdateRequest updateRequest = new UpdateRequest();
-        updateRequest.index("twitter");
-        updateRequest.type("tweet");
+        updateRequest.index(indexName);
+        updateRequest.type(typeName);
+        //如果没有该条doc会报错
         updateRequest.id("1");
         updateRequest.doc(XContentFactory.jsonBuilder()
                 .startObject()
@@ -139,7 +148,7 @@ public class ElasticSerchService {
      * @throws Exception
      */
     public void updateDocInfoByClient() throws Exception {
-        UpdateResponse response = client.update(new UpdateRequest("twitter", "tweet", "1")
+        UpdateResponse response = client.update(new UpdateRequest(indexName, typeName, "1")
                 .doc(XContentFactory.jsonBuilder()
                         .startObject()
                         .field("gender", "male")
@@ -149,13 +158,14 @@ public class ElasticSerchService {
     }
 
     /**
-     * 测试更新 update API by client
+     * 测试更新 update API by client 使用脚本
      * 使用 updateRequest 对象
      * @throws Exception,InterruptedException
      */
     public void updateScript() throws InterruptedException, Exception {
-        UpdateRequest updateRequest = new UpdateRequest("twitter", "tweet", "1")
-                .script(new Script("ctx._source.gender=\"male\""));
+        UpdateRequest updateRequest = new UpdateRequest(indexName, typeName, "1")
+
+                .script(new Script("ctx._source.gender=\"male1\""));
         UpdateResponse response = client.update(updateRequest).get();
     }
 
@@ -166,17 +176,17 @@ public class ElasticSerchService {
      */
     public void testUpsert() throws Exception {
         // 设置查询条件, 查找不到则添加生效
-        IndexRequest indexRequest = new IndexRequest("twitter", "tweet", "2")
+        IndexRequest indexRequest = new IndexRequest(indexName, typeName,"4")
                 .source(XContentFactory.jsonBuilder()
                         .startObject()
-                        .field("name", "214")
-                        .field("gender", "gfrerq")
+                        .field("user", "214")
+                        .field("gender", "gfrerq4")
                         .endObject());
         // 设置更新, 查找到更新下面的设置
-        UpdateRequest upsert = new UpdateRequest("twitter", "tweet", "2")
+        UpdateRequest upsert = new UpdateRequest(indexName, typeName, "4")
                 .doc(XContentFactory.jsonBuilder()
                         .startObject()
-                        .field("user", "wenbronk")
+                        .field("user", "wenbronk4")
                         .endObject())
                 .upsert(indexRequest);
 
@@ -189,8 +199,8 @@ public class ElasticSerchService {
      */
     public void testMultiGet() {
         MultiGetResponse multiGetResponse = client.prepareMultiGet()
-                .add("twitter", "tweet", "1")
-                .add("twitter", "tweet", "2", "3", "4")
+                .add(indexName, typeName, "1")
+                .add(indexName, typeName, "2", "3", "4")
                 .add("anothoer", "type", "foo")
                 .get();
 
@@ -207,22 +217,32 @@ public class ElasticSerchService {
      * bulk 批量执行
      * 一次查询可以update 或 delete多个document
      */
-    public void testBulk() throws Exception {
+    public void testBulk(List<Map<String, Object>> data) throws Exception {
         BulkRequestBuilder bulkRequest = client.prepareBulk();
-        bulkRequest.add(client.prepareIndex("twitter", "tweet", "1")
-                .setSource(XContentFactory.jsonBuilder()
-                        .startObject()
-                        .field("user", "kimchy")
-                        .field("postDate", new Date())
-                        .field("message", "trying out Elasticsearch")
-                        .endObject()));
-        bulkRequest.add(client.prepareIndex("twitter", "tweet", "2")
-                .setSource(XContentFactory.jsonBuilder()
-                        .startObject()
-                        .field("user", "kimchy")
-                        .field("postDate", new Date())
-                        .field("message", "another post")
-                        .endObject()));
+        for(Map<String,Object> dataItem : data){
+            IndexRequestBuilder indexRequestBuilder = client.prepareIndex(indexName, typeName, (String) dataItem.get("id"));
+            XContentBuilder  xContentBuilder = XContentFactory.jsonBuilder().startObject();
+            for(Map.Entry<String, Object> setItem : dataItem.entrySet()){
+                xContentBuilder.field(setItem.getKey(), setItem.getValue());
+            }
+            xContentBuilder.endObject();
+            indexRequestBuilder.setSource(xContentBuilder);
+            bulkRequest.add(indexRequestBuilder);
+        }
+//        bulkRequest.add(client.prepareIndex(indexName, typeName, "1")
+//                .setSource(XContentFactory.jsonBuilder()
+//                        .startObject()
+//                        .field("user", "kimchy")
+//                        .field("postDate", new Date())
+//                        .field("message", "trying out Elasticsearch")
+//                        .endObject()));
+//        bulkRequest.add(client.prepareIndex(indexName, typeName, "2")
+//                .setSource(XContentFactory.jsonBuilder()
+//                        .startObject()
+//                        .field("user", "kimchy")
+//                        .field("postDate", new Date())
+//                        .field("message", "another post")
+//                        .endObject()));
         BulkResponse response = bulkRequest.get();
         System.out.println(response.getIngestTookInMillis());
     }
@@ -261,8 +281,8 @@ public class ElasticSerchService {
                 .build();
 
         // 添加单次请求
-        bulkProcessor.add(new IndexRequest("twitter", "tweet", "1"));
-        bulkProcessor.add(new DeleteRequest("twitter", "tweet", "2"));
+        bulkProcessor.add(new IndexRequest(indexName, typeName, "1"));
+        bulkProcessor.add(new DeleteRequest(indexName, typeName, "2"));
 
         // 关闭
         bulkProcessor.awaitClose(10, TimeUnit.MINUTES);
