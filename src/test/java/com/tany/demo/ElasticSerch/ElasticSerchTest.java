@@ -1,5 +1,6 @@
 package com.tany.demo.ElasticSerch;
 
+import com.tany.demo.elasticSearch.ElasticQueryService;
 import com.tany.demo.elasticSearch.ElasticSerchService;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -9,28 +10,38 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ElasticSerchTest {
-    ElasticSerchService elasticSerchService ;
+//    ElasticSerchService elasticSerchService ;
 
 //    @BeforeClass
-    public void init() {
-        elasticSerchService = new ElasticSerchService("twitter", "tweet");
-        elasticSerchService.getESClient();
+//    public void init() {
+//        elasticSerchService = new ElasticSerchService("twitter", "tweet");
+//        elasticSerchService.getESClient();
+//    }
+
+    public static void queryDate(){
+        ElasticQueryService elasticQueryService = new ElasticQueryService("twitter", "tweet");
+        elasticQueryService.testNestedQuery();
     }
 
-    @Test
-    public void insertESInfoTest(){
+    public static void makeDate(){
         ExecutorService cachedThreadPool = Executors.newFixedThreadPool(100);
-        for (int i = 1; i < 50; i++) {
+        for (int i = 0; i < 5; i++) {
             final Random ran = new Random();
             cachedThreadPool.execute(new Runnable() {
                 @Override
                 public void run() {
                     String idString = "id"+"-"+ Math.abs(ran.nextInt()%100)+"-"+ Math.abs(ran.nextInt()%100);
-                    elasticSerchService = new ElasticSerchService("twitter", "tweet");
-                    elasticSerchService.getESClient();
+                    ElasticSerchService elasticSerchService = null;
+                    try{
+                        elasticSerchService = new ElasticSerchService("twitter", "tweet");
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
+//                    ElasticSerchService elasticSerchService = new ElasticSerchService("twitter", "tweet");
+//                    elasticSerchService.getESClient();
                     for(int i=0; i<100;i++ ){
                         List<Map<String,Object>> data = new ArrayList<>();
-                        for(int j = 0; j<1000; j++){
+                        for(int j = 0; j<100; j++){
                             Map<String ,Object> dataitem  = new HashMap<>();
                             dataitem.put("id",idString+String.format("%03d", i)+"-"+String.format("%04d", j));
                             dataitem.put("user","test"+String.format("%04d", j));
@@ -49,6 +60,11 @@ public class ElasticSerchTest {
                 }
             });
         }
+    }
+
+    public static void main(String[] args){
+//        ElasticSerchTest.makeDate();
+        ElasticSerchTest.queryDate();
     }
 
 }

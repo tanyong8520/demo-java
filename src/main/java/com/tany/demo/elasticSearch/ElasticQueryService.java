@@ -46,6 +46,7 @@ public class ElasticQueryService {
     public ElasticQueryService(String indexName, String typeName){
         this.indexName = indexName;
         this.typeName = typeName;
+        testBefore();
     }
 
     public void testBefore() {
@@ -85,12 +86,10 @@ public class ElasticQueryService {
      */
 
     public void testQueryBuilder() {
-//        QueryBuilder queryBuilder = QueryBuilders.termQuery("user", "kimchy");
-//　　　　QueryBuilder queryBuilder = QueryBuilders.termQuery("user", "kimchy", "wenbronk", "vini");
-        QueryBuilders.termsQuery("user", new ArrayList<String>().add("kimchy"));
-//        QueryBuilder queryBuilder = QueryBuilders.matchQuery("user", "kimchy");
-//        QueryBuilder queryBuilder = QueryBuilders.multiMatchQuery("kimchy", "user", "message", "gender");
-        QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
+//        QueryBuilder queryBuilder = QueryBuilders.termQuery("user", "test0000");
+//        QueryBuilder queryBuilder = QueryBuilders.matchQuery("user", "test0000,test0001");
+        QueryBuilder queryBuilder = QueryBuilders.multiMatchQuery("0000", "user", "message", "id");
+//        QueryBuilder queryBuilder = QueryBuilders.matchAllQuery();
         searchFunction(queryBuilder);
 
     }
@@ -103,18 +102,19 @@ public class ElasticQueryService {
      */
     public void testQueryBuilder2() {
         QueryBuilder queryBuilder = boolQuery()
-                .must(QueryBuilders.termQuery("user", "kimchy"))
-                .mustNot(QueryBuilders.termQuery("message", "nihao"))
-                .should(QueryBuilders.termQuery("gender", "male"));
+                .must(QueryBuilders.termQuery("user", "test0000"))
+                .mustNot(QueryBuilders.termQuery("user", "test0000"))
+                .should(QueryBuilders.termQuery("user", "test0001"))
+        ;
         searchFunction(queryBuilder);
     }
 
     /**
-     * 只查询一个id的
+     * 只查询一个id的   （没有尝试成功，无返回结果）
      * QueryBuilders.idsQuery(String...type).ids(Collection<String> ids)
      */
     public void testIdsQuery() {
-        QueryBuilder queryBuilder = QueryBuilders.idsQuery();
+        QueryBuilder queryBuilder = QueryBuilders.idsQuery().addIds(new String[]{"id-16-34065-0000"});
         searchFunction(queryBuilder);
     }
 
@@ -122,7 +122,7 @@ public class ElasticQueryService {
      * 包裹查询, 高于设定分数, 不计算相关性
      */
     public void testConstantScoreQuery() {
-        QueryBuilder queryBuilder = QueryBuilders.constantScoreQuery(QueryBuilders.termQuery("name", "kimchy")).boost(2.0f);
+        QueryBuilder queryBuilder = QueryBuilders.constantScoreQuery(QueryBuilders.termQuery("user", "test0000")).boost(110.0f);
         searchFunction(queryBuilder);
         // 过滤查询(废弃)
 //        QueryBuilders.constantScoreQuery(FilterBuilders.termQuery("name", "kimchy")).boost(2.0f);
@@ -136,19 +136,19 @@ public class ElasticQueryService {
      */
     public void testDisMaxQuery() {
         QueryBuilder queryBuilder = QueryBuilders.disMaxQuery()
-                .add(QueryBuilders.termQuery("user", "kimch"))  // 查询条件
-                .add(QueryBuilders.termQuery("message", "hello"))
+                .add(QueryBuilders.termQuery("id", "34067"))  // 查询条件
+                .add(QueryBuilders.termQuery("id", "34065"))
                 .boost(1.3f)
                 .tieBreaker(0.7f);
         searchFunction(queryBuilder);
     }
 
     /**
-     * 模糊查询
+     * 模糊查询 (没有测试出来，不知道搞毛线的)
      * 不能用通配符, 不知道干啥用
      */
     public void testFuzzyQuery() {
-        QueryBuilder queryBuilder = QueryBuilders.fuzzyQuery("user", "kimch");
+        QueryBuilder queryBuilder = QueryBuilders.fuzzyQuery("id", "id-16-34067-0000");
         searchFunction(queryBuilder);
     }
 
@@ -192,10 +192,11 @@ public class ElasticQueryService {
      analyzer：设置使用的分词器，默认是使用该字段指定的分词器
      */
     public void testMoreLikeThisQuery() {
-        QueryBuilder queryBuilder = QueryBuilders.moreLikeThisQuery(new String[]{"user"}).analyzer("kimchy");
-//                .like("kimchy");
-//                            .minTermFreq(1)         //最少出现的次数
-//                            .maxQueryTerms(12);        // 最多允许查询的词语
+        QueryBuilder queryBuilder = QueryBuilders.moreLikeThisQuery(new String[]{"id","uesr","message"},new String[]{"0001"},null)
+//                .like("kimchy")
+                            .minTermFreq(1)         //最少出现的次数
+                            .maxQueryTerms(12) // 最多允许查询的词语
+                ;
         searchFunction(queryBuilder);
     }
 
@@ -203,7 +204,7 @@ public class ElasticQueryService {
      * 前缀查询
      */
     public void testPrefixQuery() {
-        QueryBuilder queryBuilder = QueryBuilders.matchQuery("user", "kimchy");
+        QueryBuilder queryBuilder = QueryBuilders.matchQuery("id", "id-16-34065-0000").boost(100);
         searchFunction(queryBuilder);
     }
 
@@ -211,7 +212,7 @@ public class ElasticQueryService {
      * 查询解析查询字符串
      */
     public void testQueryString() {
-        QueryBuilder queryBuilder = QueryBuilders.queryStringQuery("+kimchy");
+        QueryBuilder queryBuilder = QueryBuilders.queryStringQuery("+d-16-34065-0000").boost(200);
         searchFunction(queryBuilder);
     }
 
@@ -219,9 +220,9 @@ public class ElasticQueryService {
      * 范围内查询
      */
     public void testRangeQuery() {
-        QueryBuilder queryBuilder = QueryBuilders.rangeQuery("user")
-                .from("kimchy")
-                .to("wenbronk")
+        QueryBuilder queryBuilder = QueryBuilders.rangeQuery("postLong")
+                .from(1531726438236L)
+                .to(1531726438246L)
                 .includeLower(true)     // 包含上界
                 .includeUpper(true);      // 包含下届
         searchFunction(queryBuilder);
@@ -231,9 +232,14 @@ public class ElasticQueryService {
      * 跨度查询
      */
     public void testSpanQueries() {
+//        这个查询用于确定一个单词相对于起始位置的偏移位置，举个例子：
+//        如果一个文档字段的内容是：“hello,my name is tom”，我们要检索tom，那么它的span_first最小应该是5，否则就查找不到。
+//        使用的时候，只是比span_term多了一个end界定而已：
         QueryBuilder queryBuilder1 = QueryBuilders.spanFirstQuery(
-                QueryBuilders.spanTermQuery("name", "葫芦580娃"), 30000);     // Max查询范围的结束位置
+                QueryBuilders.spanTermQuery("message", "0000"), 50000);     // Max查询范围的结束位置
 
+//        这个查询主要用于确定几个span_term之间的距离，通常用于检索某些相邻的单词，避免在全局跨字段检索而干扰最终的结果。
+//        查询主要由两部分组成，一部分是嵌套的子span查询，另一部分就是他们之间的最大的跨度
         QueryBuilder queryBuilder2 = QueryBuilders.spanNearQuery(QueryBuilders.spanTermQuery("name", "葫芦580娃"), 30000)
                 .addClause(QueryBuilders.spanTermQuery("name", "葫芦580娃")) // Span Term Queries
                 .addClause(QueryBuilders.spanTermQuery("name", "葫芦3812娃"))
@@ -243,18 +249,24 @@ public class ElasticQueryService {
 //                .collectPayloads(false);
 
         // Span Not
+//        就是排除的意思。不过它内部有几个属性，include用于定义包含的span查询；exclude用于定义排除的span查询
         QueryBuilder queryBuilder3 = QueryBuilders.spanNotQuery(
                 QueryBuilders.spanTermQuery("name", "葫芦580娃"),
                 QueryBuilders.spanTermQuery("home", "山西省太原市2552街道"));
 
 
         // Span Or
+//        嵌套一些子查询，子查询之间的逻辑关系为 或
         QueryBuilder queryBuilder4 = QueryBuilders.spanOrQuery(QueryBuilders.spanTermQuery("name", "葫芦580娃"))
                 .addClause(QueryBuilders.spanTermQuery("name", "葫芦3812娃"))
                 .addClause(QueryBuilders.spanTermQuery("name", "葫芦7139娃"));
 
         // Span Term
-        QueryBuilder queryBuilder5 = QueryBuilders.spanTermQuery("name", "葫芦580娃");
+//        查询内部会有多个子查询，但是会设定某个子查询优先级更高，作用更大，通过关键字little和big来指定。
+        QueryBuilders.spanContainingQuery(QueryBuilders.spanTermQuery("name", "葫芦580娃"),
+                QueryBuilders.spanTermQuery("home", "山西省太原市2552街道"));
+
+        searchFunction(queryBuilder1);
     }
 
     /**
@@ -272,12 +284,12 @@ public class ElasticQueryService {
      * 避免* 开始, 会检索大量内容造成效率缓慢
      */
     public void testWildCardQuery() {
-        QueryBuilder queryBuilder = QueryBuilders.wildcardQuery("user", "ki*hy");
+        QueryBuilder queryBuilder = QueryBuilders.wildcardQuery("user", "test000*");
         searchFunction(queryBuilder);
     }
 
     /**
-     * 嵌套查询, 内嵌文档查询
+     * 嵌套查询, 内嵌文档查询 相当于 select id,name,(select id,name from contacts) from account
      */
     public void testNestedQuery() {
         QueryBuilder queryBuilder = QueryBuilders.nestedQuery("location",
@@ -289,7 +301,7 @@ public class ElasticQueryService {
     }
 
     /**
-     * 测试索引查询
+     * geo_point纬度/经度对字段的支持,和 geo_shape领域,支持点、线、圆、多边形、多等。
      */
     public void testIndicesQueryBuilder () throws IOException {
         QueryBuilder queryBuilder = QueryBuilders.geoShapeQuery(
@@ -321,8 +333,12 @@ public class ElasticQueryService {
         while(true) {
             response = client.prepareSearchScroll(response.getScrollId())
                     .setScroll(new TimeValue(60000)).execute().actionGet();
+            int number = 0;
+
             for (SearchHit hit : response.getHits()) {
+                number++;
                 Iterator<Entry<String, Object>> iterator = hit.getSourceAsMap().entrySet().iterator();
+                System.out.println("score info :" +hit.getScore());
                 while(iterator.hasNext()) {
                     Entry<String, Object> next = iterator.next();
                     System.out.println(next.getKey() + ": " + next.getValue());
@@ -331,6 +347,7 @@ public class ElasticQueryService {
                     }
                 }
             }
+            System.out.println("get data size:"+number);
             break;
         }
 //        testResponse(response);

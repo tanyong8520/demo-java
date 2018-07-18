@@ -44,6 +44,7 @@ public class ElasticSerchService {
     public ElasticSerchService(String indexName, String typeName){
         this.indexName = indexName;
         this.typeName = typeName;
+        getESClient();
     }
 
     public void getESClient(){
@@ -105,12 +106,12 @@ public class ElasticSerchService {
     /**
      * 测试 delete api
      */
-    public void deleteType() {
-        DeleteResponse response = client.prepareDelete(indexName, typeName, "4")
+
+    public void deleteType(String indexName, String typeName, String id) {
+        DeleteResponse response = client.prepareDelete(indexName, typeName, id)
                 .get();
         String index = response.getIndex();
         String type = response.getType();
-        String id = response.getId();
         long version = response.getVersion();
         System.out.println(index + " : " + type + ": " + id + ": " + version);
     }
