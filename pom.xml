@@ -181,6 +181,27 @@
 			<artifactId>transport-netty4-client</artifactId>
 			<version>6.2.4</version>
 		</dependency>
+
+		<!--rpc-thrift-->
+		<dependency>
+			<groupId>org.apache.thrift</groupId>
+			<artifactId>libthrift</artifactId>
+			<version>0.11.0</version>
+			<type>pom</type>
+		</dependency>
+
+        <!-- quartz -->
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>2.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>4.0.0.RELEASE</version>
+        </dependency>
+
 	</dependencies>
 
 	<build>
