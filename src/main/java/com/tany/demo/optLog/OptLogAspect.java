@@ -1,12 +1,11 @@
 package com.tany.demo.optLog;
 
 import com.tany.demo.Utils.ResultModel;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +17,18 @@ public class OptLogAspect {
     @Pointcut("@annotation(com.tany.demo.optLog.OptLog)")
     public void logPointCut() {
         System.out.println("optlog cut!");
+    }
+
+    @Before("logPointCut()")
+    public void before() {
+        logger.info("已经记录下操作日志@Before 方法执行前");
+    }
+
+    @Around("logPointCut()")
+    public void around(ProceedingJoinPoint pjp) throws Throwable{
+        logger.info("已经记录下操作日志@Around 方法执行前");
+        pjp.proceed();
+        logger.info("已经记录下操作日志@Around 方法执行后");
     }
 
     @AfterReturning(pointcut="logPointCut()",returning="returnValue")
