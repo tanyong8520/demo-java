@@ -1,6 +1,7 @@
 package com.tany.demo.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.tany.demo.Utils.ResultModel;
 import com.tany.demo.asynctask.AsyncTaskService;
 import com.tany.demo.controller.vo.UserInfoEnter;
@@ -24,16 +25,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import com.alibaba.fastjson.JSON;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("tany")
@@ -172,5 +174,37 @@ public class test {
     @RequestMapping(value = "/kickout", method = RequestMethod.GET)
     public String kickOut() {
         return "kickout";
+    }
+
+
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    public ResultModel upload(MultipartFile multipartFile){
+        if(!multipartFile.isEmpty()){
+            //设置文件的保存路径
+            String filePath = "D:\\MultipartFile\\" + multipartFile.getOriginalFilename();
+            //转存文件
+            try {
+                multipartFile.transferTo(new File(filePath));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return ResultModel.success();
+    }
+
+    @RequestMapping("fileUploadFiles")
+    @ResponseBody
+    //此处用@RequestParam（"xx"）来指定参数名，不加会报错
+    public String uploadFiles(@RequestParam("multipartFile") MultipartFile[] multipartfiles) throws IOException {
+        String savePath = "D:\\MultipartFile\\";
+        if(multipartfiles != null && multipartfiles.length != 0){
+            if(null != multipartfiles && multipartfiles.length > 0){
+                //遍历并保存文件
+                for(MultipartFile file : multipartfiles){
+                    file.transferTo(new File(savePath + file.getOriginalFilename()));
+                }
+            }
+        }
+        return "success";
     }
 }
