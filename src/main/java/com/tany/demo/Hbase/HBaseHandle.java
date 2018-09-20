@@ -121,6 +121,36 @@ public class HBaseHandle {
     }
 
     /**
+     * 批量写数据
+     * @param tableName 表名
+     * @param dataList
+     */
+    public void batchInsertData(String tableName, List<Map<String,String>> dataList) {
+        HTable table = null;
+        try{
+            table = (HTable) conn.getTable(TableName.valueOf(tableName));
+            table.setAutoFlushTo(false);
+            for(int i= 0 ; i<dataList.size(); i++){
+                Map<String,String> dataItem = dataList.get(i);
+                String rowKey = dataItem.get("row");
+                Put put = new Put(Bytes.toBytes(rowKey));
+                put.addColumn(Bytes.toBytes(dataItem.get("family")),
+                        Bytes.toBytes(dataItem.get("qualifier")),
+                        Bytes.toBytes(dataItem.get("value")));
+                table.put(put);
+                if( 1 % 2000 == 0){
+                    table.flushCommits();
+                }
+            }
+            table.flushCommits();
+        } catch (IOException e) {
+            LOG.error("insert error: {}", e);
+        } finally {
+            closeTable(table);
+        }
+
+    }
+    /**
      * 写数据
      * @param tableName 表名
      * @param rowKey 行之间
@@ -427,5 +457,4 @@ public class HBaseHandle {
             }
         }
     }
-
 }
